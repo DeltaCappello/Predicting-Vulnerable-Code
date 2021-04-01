@@ -1,0 +1,188 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% University/School Laboratory Report
+% LaTeX Template
+% Version 3.1 (25/3/14)
+%
+% This template has been downloaded from:
+% http://www.LaTeXTemplates.com
+%
+% Original author:
+% Linux and Unix Users Group at Virginia Tech Wiki 
+% (https://vtluug.org/wiki/Example_LaTeX_chem_lab_report)
+%
+% License:
+% CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+
+\documentclass{article}
+
+\usepackage[version=3]{mhchem} % Package for chemical equation typesetting
+\usepackage{siunitx} % Provides the \SI{}{} and \si{} command for typesetting SI units
+\usepackage{graphicx} % Required for the inclusion of images
+\usepackage{natbib} % Required to change bibliography style to APA
+\usepackage{amsmath} % Required for some math elements 
+
+\setlength\parindent{0pt} % Removes all indentation from paragraphs
+
+\renewcommand{\labelenumi}{\alph{enumi}.} % Make numbering in the enumerate environment by letter rather than number (e.g. section 6)
+
+%\usepackage{times} % Uncomment to use the Times New Roman font
+
+%----------------------------------------------------------------------------------------
+%	DOCUMENT INFORMATION
+%----------------------------------------------------------------------------------------
+
+\title{Requirement Analysis Document \\ Re-engineering of \\ Predicting Vulnerable Code} % Title
+
+\author{Dario \textsc{Di Dario}} % Author name
+
+\date{\today} % Date for the report
+
+\begin{document}
+
+\maketitle % Insert the title, author and date
+
+\begin{center}
+\begin{tabular}{l r}
+Release first version: & July 2020 \\ % first version of the experiment was released
+Date starting re-eng: & April, 1 2021 \\ %date of the starting re-engineering
+Partners: & Dario Di Dario \\ % Partner names
+\\
+Version: 1.0 % Instructor/supervisor
+\end{tabular}
+\end{center}
+
+% If you wish to include an abstract, uncomment the lines below
+% \begin{abstract}
+% Abstract text
+% \end{abstract}
+
+%----------------------------------------------------------------------------------------
+%	SECTION 1
+%----------------------------------------------------------------------------------------
+
+\section{Introduzione}
+
+La prima release conosciuta anche come "Predicting Vulnerable Code" è stata concepita per portare avanti un esperimento accademico. Si è pensato di costruire sulla base dell'esperimento, un tool completo che aiuti gli sviluppatori nella predizione delle vulnerabilità all'interno del loro codice.
+
+% If you have more than one objective, uncomment the below:
+%\begin{description}
+%\item[First Objective] \hfill \\
+%Objective 1 text
+%\item[Second Objective] \hfill \\
+%Objective 2 text
+%\end{description}
+
+\subsection{Obiettivo del sistema}
+
+L'obiettivo del re-engineering è quello di costruire sulla base dell'esperimento accademico, un tool completo che sia capace di predire le vulnerabilità all'interno del codice. Le differenti tecniche che saranno adoperate per completare gli obiettivi del re-engineering sono:
+\begin{itemize}
+    \item Text Mining 
+    \item Software Metrics
+    \item Static Analysis
+\end{itemize}
+Al fine di semplificare l'individuazione dei più noti tipi di vulnerabilità all'interno del software.
+
+\subsection{Ambito del sistema}
+Il sistema è concepito per essere usato da sviluppatori, quindi include al suo interno la possibilità di analizzare il progetto tramite sistemi di versioning come GitHub. Questo consente quindi di poter analizzare singoli commit per predire le vulnerabilità anche quando il software da testare non ha raggiunto la fine. 
+Questo porta ottimi benefici agli sviluppatori che intendono analizzare il loro codice commit dopo commit. 
+Il sistema, quindi, supporta:
+\begin{itemize}
+    \item La sottomissione del progetto.
+    \item La sottomissione di un singolo commit del progetto gestito con GitHub.
+    \item La relativa analisi del progetto, o del singolo commit secondo le tre tecniche esplicitate sopra per ottenere una predizione.
+\end{itemize}
+
+ 
+%----------------------------------------------------------------------------------------
+%	SECTION 2
+%----------------------------------------------------------------------------------------
+
+\section{Sistema Attuale}
+\subsection{Descrizione sistema attuale}
+Il "sistema" corrente (GitHub: https://github.com/Dariucc07/Predicting-Vulnerable-Code)
+consente la ri-esecuzione di un esperimento accademico. Lo scopo dell'esperimento era cercare le tecniche più note di mining e software metrics per constatare se esse potessero in qualche modo avere una correlazione con le vulnerabilità. I risultati ottenuti lasciano pensare ad una correlazione tra loro, motivo per cui si vuole portare avanti lo studio e creare un vero e proprio tool per gli sviluppatori. 
+L'esperimento basa la sua efficacia su un dataset concepito da persone esterne che tiene traccia di moltissime repository presenti su GitHub con dei relativi hash dei commit. I creatori del dataset hanno studiato ogni singolo commit di ogni singola repository (tramite anche lo studio della change history) trovando le possibili vulnerabilità. Per ogni entry del dataset quindi è stato preso l'hash del commit ed è stato effettuato il repository mining, ovvero l'acquisizione di tutte le classi inserite in quel determinato commit. Per ogni classe quindi è stato effettuato il Text Mining secondo la metodologia NON RICORDO LO STUDIO DI FABIO MI PARE SI CHIAMI SETA, creando quindi un ulteriore dataset contenente tutti i tipi di parole formalizzate. Lo stesso è stato fatto per le software metrics (calcolate tramite l'applicativo Understand) prendendo in considerazione le seguenti operazioni:
+\begin{itemize}
+    \item CountLineCode
+    \item CountDeclClass
+    \item CountDeclFunction
+    \item CountLineCodeDecl
+    \item SumEssential
+    \item SumCyclomaticStrict
+    \item MaxEssential
+    \item MaxCyclomaticStrict
+    \item MaxNeisting
+\end{itemize}
+Per la Static Analysis, i dati sono stati estratti con l'utilizzo di SonarQube con il plugin CNESReport.
+Ogni file viene analizzato seguendo 19 regole creando alla fine dell'esecuzione un ulteriore dataset contenente i risultati dell'analisi. 
+\\
+Successivamente viene calcolato l'impatto di ogni singola tecnica e infine i 3 dataset risultanti dalle tre diverse esecuzioni. L'applicazione dei differenti classificatori:
+\begin{itemize}
+    \item Logistic Regression (LR)
+    \item Naive Bayes (NB)
+    \item Support Vector Machine (SVM)
+    \item Random Forest (RF)
+\end{itemize}
+viene applicata tramite l'utilizzo dell'applicativo WEKA.
+
+
+%----------------------------------------------------------------------------------------
+%	SECTION 3
+%----------------------------------------------------------------------------------------
+
+\section{Sistema Proposto}
+\subsection{Sintesi della sezione}
+In questo capitolo vengono illustrati i requisiti funzionali che rispecchiano le funzionalità che il tool vuole raggiungere. Successivamente verranno anche descritti alcuni scenari che descrivono il funzionamento del sistema.\\
+Il tool che si vuole sviluppare mira quindi ad avere una semplificazione della predizione ad ogni singolo commit che lo sviluppatore effettua, avendo quindi un sistema e una metodologia di sviluppo "safe". Il tutto viene semplificato tramite un'interfaccia grafica di facile utilizzo.
+
+\subsection{Requisiti Funzionali}
+%---------------------------------------------------------------------------------------
+\textbf{RF 1: Sottomissione Progetto}: Questa funzionalità permette quindi la sottomissione da parte dello sviluppatore, del progetto che vuole analizzare.
+
+\begin{itemize}
+    \item \textbf{RF 1.1 - Inserimento Progetto da Locale}: Il sistema consente all'utente di considerare l'intero progetto in locale.
+    \item \textbf{RF 1.2 - Inserimento Commit GitHub (o altri)}: Il sistema consente all'utente di prendere in considerazione solo i file che vengono inseriti ad un determinato commit, tramite il suo codice hash.
+\end{itemize}
+%---------------------------------------------------------------------------------------
+\textbf{RF 2: Vulnerability Prediction Models}: Questa funzionalità consente di applicare la logica relativa alle tre tecniche sopra specificate.
+
+\begin{itemize}
+    \item \textbf{RF 2.1 - Calcolo del Text Mining}: Il sistema effettua il calcolo del text mining sul commit specificato in precedenza dall'utente.
+     \item \textbf{RF 2.2 - Calcolo delle Software Metrics}: Il sistema effettua il calcolo delle software metrics sul commit specificato in precedenza dall'utente.
+      \item \textbf{RF 2.1 - Calcolo della Static Analysis}: Il sistema effettua il calcolo dell'analisi statica sul commit specificato in precedenza dall'utente
+\end{itemize}
+
+I risultati ottenuti dall'elaborazioni verranno inseriti nel dataset che presenta l'elaborazione delle tre differenti tecniche, in modo tale da predire le vulnerabilità in base a quelle calcolate dall'esperimento della prima versione.
+
+
+%----------------------------------------------------------------------------------------
+%	SECTION 4
+%----------------------------------------------------------------------------------------
+
+\section{Use Case}
+
+Work in Progress
+
+%----------------------------------------------------------------------------------------
+%	SECTION 5
+%----------------------------------------------------------------------------------------
+
+
+%----------------------------------------------------------------------------------------
+%	BIBLIOGRAPHY
+%----------------------------------------------------------------------------------------
+
+\bibliographystyle{apalike}
+
+\bibliography{sample}
+
+%----------------------------------------------------------------------------------------
+
+
+\end{document}
