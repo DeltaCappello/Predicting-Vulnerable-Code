@@ -4,7 +4,8 @@ import getpass
 import platform
 from pydriller import RepositoryMining
 
-class RepositoryMining:
+class RepoMining:
+    allCommit = []
 
     def __init__(self, repo_url, commitHash):
         self.repo_url = repo_url
@@ -15,7 +16,7 @@ class RepositoryMining:
             response = requests.get(repo_url)
             if response:
                 try:
-                    self.getAllCommit(repo_url, None)
+                    self.allCommit = self.getAllCommit(repo_url, None)
                     #start mining from a specific commit
                 except ValueError:
                     print("Repo doesn't exists or not available")
@@ -39,33 +40,38 @@ class RepositoryMining:
                 if ".java" in mod.filename:
                     if commit.hash() not in os.listdir():
                         os.mkdir(commit.hash())
-                        #SEI ARRIVATO QUI. PRENDI IL CODICE di repo_Mining.py riga 71
+                    #if exist, enter into the folder
+                    os.chdir(commit.hash())
+                    if mod.source_code_before != None:
+                        javaFile = open(mod.filename, "w+")
+                        javaFile.write(mod.source_code_before)
+                    os.chdir(cwd)
+        javaFile.close()
 
     def setDefaultDir(self):
         operatingSys = platform.system()
         user = getpass.getuser()
         directory = ""
         if operatingSys == "Windows":
-            #something
             directory = "C:\\Users\\" + user + "\\Desktop\\"
             return directory
         elif operatingSys == "Darwin":
-            #something
             directory = "/Users/" + user + "/Desktop/"
             return directory
         elif operatingSys == "Linux":
-            #something
             directory = "/home/" + user + "/Scrivania"
             return directory
 
 
-    def getAllCommit(self, repo_url, commitHash):
-        if self.isEmptyHash():
+    def getAllCommit(self, repo_url):
+        allCommit = []
+        if not self.isEmptyUrl(self, repo_url):
             for commit in RepositoryMining(repo_url).traverse_commits():
-                print(commit.hash)
+                allCommit.append(commit.hash)
+        return allCommit
 
     def isEmptyUrl(self, repo_url):
-        if not str(repo_url) or repo_url == None:
+        if not str(repo_url) or repo_url is None:
             return True
         else:
             return False
