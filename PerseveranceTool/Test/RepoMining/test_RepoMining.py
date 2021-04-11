@@ -1,4 +1,5 @@
 import unittest
+import os
 from unittest.mock import MagicMock
 from pydriller import RepositoryMining
 
@@ -7,10 +8,9 @@ from ...Application.RepoMining.RepoMining import RepoMining
 class Test_RepoMining(unittest.TestCase):
     repo_url = "https://github.com/DeltaCappello/Predicting-Vulnerable-Code"
     commitHash = "912fa87667aa3fbaa68c31913790f2ac758ab368"
-    allCommit = ["cc6b251f1083df2abf3e08eb53570ca78c3f738e", "4f980e51aecbf8119a02514e9573e5cdd262acb7", "9e1c0912b6d819d2970a15d742eec4687f55e80e", "6e5de9082ab1d8986a31a73709d896880b604be7"]
 
 
-    #----------------------isEmptyUrl()-------------------------------------------
+    #----------------------isEmptyUrl(self, repo_url)-------------------------------------------
     """Test if the passed URL is valid"""
     def test_isEmptyUrl_Valid(self):
         result = RepoMining.isEmptyUrl(self, self.repo_url)
@@ -26,7 +26,7 @@ class Test_RepoMining(unittest.TestCase):
         result = RepoMining.isEmptyUrl(self, "")
         self.assertTrue(result, "")
 
-    #----------------------isEmptyHash()-------------------------------------------
+    #----------------------isEmptyHash(self, commitHash)-------------------------------------------
 
     """Test if the hash of the commit is Valid"""
     def test_isEmptyHash(self):
@@ -43,13 +43,13 @@ class Test_RepoMining(unittest.TestCase):
         result = RepoMining.isEmptyHash(self, "")
         self.assertTrue(result, "")
 
-    #----------------------setDefaultDir()-------------------------------------------
+    #----------------------setDefaultPath(self)-------------------------------------------
     """Test if the default Directory is right for the system that we are using"""
-    def test_setDefaultDir(self):
-        result = RepoMining.setDefaultDir(self)
+    def test_setDefaultPath(self):
+        result = RepoMining.setDefaultPath(self)
         self.assertEqual(result, "/Users/UniSa/Desktop/")
 
-    #----------------------getAllCommit()-------------------------------------------
+    #----------------------getAllCommit(self, repo_url)-------------------------------------------
     """Test if the commit of a specific repository are valid"""
     def test_getAllCommit(self):
         gotAllCommit = []
@@ -57,3 +57,45 @@ class Test_RepoMining(unittest.TestCase):
         for commit in RepositoryMining("https://github.com/Dariucc07/Sometest").traverse_commits():
             gotAllCommit.append(commit.hash)
         self.assertListEqual(result, gotAllCommit)
+
+    # ----------------------setDefaultDir(self)-------------------------------------------
+    """Test the Default directory in which the mining will start. The folder will be in ./Desktop of the users"""
+    def test_setDefaultDir(self):
+        cwd_oracle = "/Users/UniSa/Desktop/Perseverance"
+        result = RepoMining.setDefaultDir(RepoMining)
+        self.assertEqual(result, cwd_oracle)
+
+    # ----------------------startMining(self, repo_url, commitHash)-------------------------------------------
+    """Test that all the file of a specific commithash has the right element inside the folder"""
+    def test_startMining(self):
+        allfile = []
+        fileOracle = ["Rational.java"]
+        RepoMining.startMining(RepoMining, "https://github.com/Dariucc07/Sometest", "6edb52c9639364b67f8ad89f2ca079e7552bd469") #the hash commit is for a commit that i know that have a modification at least of one file
+        os.chdir("/Users/UniSa/Desktop/Perseverance/6edb52c9639364b67f8ad89f2ca079e7552bd469")
+        allfile = os.listdir()
+        self.assertListEqual(allfile, fileOracle)
+
+    # ----------------------exist(self, repo_url, commitHash)-------------------------------------------
+    def test_existWithoutCommitHash(self):
+        oracle = []
+        for commit in RepositoryMining("https://github.com/Dariucc07/Sometest").traverse_commits():
+            oracle.append(commit.hash)
+        result = RepoMining.exist(RepoMining, "https://github.com/Dariucc07/Sometest", None)
+        self.assertListEqual(result, oracle)
+
+    def test_existWithEmptyCommitHash(self):
+        oracle = []
+        for commit in RepositoryMining("https://github.com/Dariucc07/Sometest").traverse_commits():
+            oracle.append(commit.hash)
+        result = RepoMining.exist(RepoMining, "https://github.com/Dariucc07/Sometest", "")
+        self.assertListEqual(result, oracle)
+
+    def test_existWithEmptyRepoUrlOrNone(self):
+        result = RepoMining.exist(RepoMining, None or "", "")
+        self.assertIsNone(result)
+
+    def test_existWithRepoUrlAndCommitHashValid(self):
+        oracle = ["Rational.java"]
+        result = RepoMining.exist(RepoMining, "https://github.com/Dariucc07/Sometest", "6edb52c9639364b67f8ad89f2ca079e7552bd469")
+        print(result)
+        self.assertListEqual(result, oracle)

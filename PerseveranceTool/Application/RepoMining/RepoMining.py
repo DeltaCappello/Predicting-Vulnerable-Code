@@ -6,49 +6,66 @@ from pydriller import RepositoryMining
 
 class RepoMining:
     allCommit = []
+    classMined = []
 
     def __init__(self, repo_url, commitHash):
         self.repo_url = repo_url
         self.commitHash = commitHash
 
     def exist(self, repo_url, commitHash):
-        if self.isEmptyHash():
-            response = requests.get(repo_url)
-            if response:
-                try:
-                    self.allCommit = self.getAllCommit(repo_url, None)
-                    #start mining from a specific commit
-                except ValueError:
-                    print("Repo doesn't exists or not available")
-        else:
-            response1 = requests.get(repo_url + "/commit/" + commitHash)
-            if response1:
-                try:
-                    self.startMining(repo_url, commitHash)
-                except:
-                    print("ValueError: SHA for commit not defined")
+        if not self.isEmptyUrl(self, repo_url):
+            if self.isEmptyHash(self, commitHash):
+                response = requests.get(repo_url)
+                if response:
+                    try:
+                        self.allCommit = self.getAllCommit(self, repo_url)
+                        return self.allCommit
+                        #start mining from a specific commit got from user's choice
+                    except ValueError:
+                        print("Repo doesn't exists or not available")
             else:
-                print("commit doesn't exist")
+                response = requests.get(str(repo_url) + "/commit/" + str(commitHash))
+                if response:
+                    try:
+                        self.classMined = self.startMining(self, repo_url, commitHash)
+                        return self.classMined
+                    except:
+                        print("ValueError: SHA for commit not defined")
+                else:
+                    print("commit doesn't exist")
+        else:
+            print("Repo Url is null or empty")
+            return None
 
 
     def startMining(self, repo_url, commitHash):
-        cwd = self.setDefaultDir()
-        os.chdir(cwd)
-        os.mkdir("Perseverance")
+        allClass = []
+        cwd = self.setDefaultDir(self)
         for commit in RepositoryMining(repo_url, commitHash).traverse_commits():
             for mod in commit.modifications:
                 if ".java" in mod.filename:
-                    if commit.hash() not in os.listdir():
-                        os.mkdir(commit.hash())
+                    if commit.hash not in os.listdir():
+                        os.mkdir(commit.hash)
                     #if exist, enter into the folder
-                    os.chdir(commit.hash())
+                    os.chdir(commit.hash)
                     if mod.source_code_before != None:
                         javaFile = open(mod.filename, "w+")
                         javaFile.write(mod.source_code_before)
+                        allClass.append(str(mod.filename))
                     os.chdir(cwd)
         javaFile.close()
+        return allClass
 
     def setDefaultDir(self):
+        cwd = self.setDefaultPath(self)
+        os.chdir(cwd)
+        if not os.path.isdir(str(cwd) + "Perseverance"):
+            os.mkdir("Perseverance")
+        else:
+            os.chdir(str(cwd) + "Perseverance")
+        return os.getcwd()
+
+    def setDefaultPath(self):
         operatingSys = platform.system()
         user = getpass.getuser()
         directory = ""
@@ -61,7 +78,6 @@ class RepoMining:
         elif operatingSys == "Linux":
             directory = "/home/" + user + "/Scrivania"
             return directory
-
 
     def getAllCommit(self, repo_url):
         allCommit = []
@@ -77,7 +93,7 @@ class RepoMining:
             return False
 
     def isEmptyHash(self, commitHash):
-        if not str(commitHash) or commitHash == None:
+        if not str(commitHash) or commitHash is None:
             return True
         else:
             return False
